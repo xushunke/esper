@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.common.client;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Returns a facility to process event objects that are of a known type.
  * <p>
@@ -17,6 +20,16 @@ package com.espertech.esper.common.client;
  * event type and may not process event objects of any other event type; See the method documentation for more details.
  */
 public interface EventSender {
+    ThreadLocal<Set<String>> THREAD_DISABLED_STATEMENT_NAMES = new ThreadLocal<>();
+
+    static Set<String> disabledNames() {
+        return new HashSet<>(THREAD_DISABLED_STATEMENT_NAMES.get());
+    }
+
+    static void setDisabledNames(Set<String> disabledNames) {
+        THREAD_DISABLED_STATEMENT_NAMES.set(disabledNames);
+    }
+
     /**
      * Processes the event object.
      * <p>

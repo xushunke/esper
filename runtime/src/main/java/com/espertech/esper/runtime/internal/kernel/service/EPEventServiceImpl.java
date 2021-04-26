@@ -697,6 +697,9 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
      * @param filterFaultCount filter fault count
      */
     public void processStatementFilterSingle(EPStatementAgentInstanceHandle handle, EPStatementHandleCallbackFilter handleCallback, EventBean theEvent, long version, int filterFaultCount) {
+        if (isHandleDisabled(handle)) {
+            return;
+        }
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qEventCP(theEvent, handle, services.getSchedulingService().getTime());
         }
@@ -730,6 +733,13 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
                 InstrumentationHelper.get().aEventCP();
             }
         }
+    }
+
+    private boolean isHandleDisabled(EPStatementAgentInstanceHandle handle) {
+        EPStatementHandle statementHandle = handle.getStatementHandle();
+        String statementName = statementHandle.getStatementName();
+        //if statementName in disabled list ,then disable it
+        return EventSender.disabledNames().contains(statementName);
     }
 
     protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent, int filterFaultCount) {
