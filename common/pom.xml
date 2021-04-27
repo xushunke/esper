@@ -49,6 +49,12 @@
 	</developers>
 	<dependencies>
 		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>expiringmap</artifactId>
+			<version>0.5.8</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j-api.version}</version>

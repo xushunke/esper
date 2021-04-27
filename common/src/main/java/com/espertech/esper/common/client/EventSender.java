@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.common.client;
 
-import java.util.HashSet;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Returns a facility to process event objects that are of a known type.
@@ -20,14 +23,21 @@ import java.util.Set;
  * event type and may not process event objects of any other event type; See the method documentation for more details.
  */
 public interface EventSender {
-    ThreadLocal<Set<String>> THREAD_DISABLED_STATEMENT_NAMES = new ThreadLocal<>();
+    ThreadLocal<ExpiringMap<String, String>> THREAD_DISABLED_STATEMENT_NAMES = ThreadLocal.withInitial(() ->
+            ExpiringMap
+                    .builder()
+                    .expiration(30, TimeUnit.SECONDS)
+                    .variableExpiration()
+                    .expirationPolicy(ExpirationPolicy.CREATED)
+                    .build()
+    );
 
     static Set<String> disabledNames() {
-        return new HashSet<>(THREAD_DISABLED_STATEMENT_NAMES.get());
+        return THREAD_DISABLED_STATEMENT_NAMES.get().keySet();
     }
 
-    static void setDisabledNames(Set<String> disabledNames) {
-        THREAD_DISABLED_STATEMENT_NAMES.set(disabledNames);
+    static void putDisabledNames(String disabledName) {
+        THREAD_DISABLED_STATEMENT_NAMES.get().put(disabledName,"");
     }
 
     /**
